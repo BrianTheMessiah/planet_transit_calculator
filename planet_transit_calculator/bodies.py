@@ -11,33 +11,73 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 
+import numpy as np
+
+
+AU_IN_KM = 149597870.7
+
+MERCURY = "mercury"
+VENUS = "venus"
+EARTH = "earth"
+MARS = "mars"
+JUPITER = "jupiter"
+SATURN = "saturn"
+URANUS = "uranus"
+NEPTUNE = "neptune"
+
+MERCURY_ORBITAL_PERIOD_SECONDS = 87.97 * 86400
+VENUS_ORBITAL_PERIOD_SECONDS = 224.70 * 86400
+EARTH_ORBITAL_PERIOD_SECONDS = 365.25 * 86400
+MARS_ORBITAL_PERIOD_SECONDS = 686.98 * 86400
+JUPITER_ORBITAL_PERIOD_SECONDS = 4332.59 * 86400
+SATURN_ORBITAL_PERIOD_SECONDS = 10759.22 * 86400
+URANUS_ORBITAL_PERIOD_SECONDS = 30688.5 * 86400
+NEPTUNE_ORBITAL_PERIOD_SECONDS = 60182.0 * 86400
+
+MERCURY_SEMI_MAJOR_AXIS_AU = 0.387
+VENUS_SEMI_MAJOR_AXIS_AU = 0.723
+EARTH_SEMI_MAJOR_AXIS_AU = 1.000
+MARS_SEMI_MAJOR_AXIS_AU = 1.524
+JUPITER_SEMI_MAJOR_AXIS_AU = 5.203
+SATURN_SEMI_MAJOR_AXIS_AU = 9.537
+URANUS_SEMI_MAJOR_AXIS_AU = 19.191
+NEPTUNE_SEMI_MAJOR_AXIS_AU = 30.069
+
 
 @dataclass(frozen=True)
 class CelestialBodyOrbitalInfo:
     name: str
     ephemeris_key: str
     semi_major_axis_au: float
-    orbital_period_days: float
+    orbital_period_seconds: float
+    mu: float = 0.0  # gravitational parameter of the central body, km^3/s^2, not used for planets but can be set for moons
 
-
-MERCURY_DAYS_PER_YEAR = 87.97
-VENUS_DAYS_PER_YEAR = 224.70
-EARTH_DAYS_PER_YEAR = 365.25
-MARS_DAYS_PER_YEAR = 686.98
-JUPITER_DAYS_PER_YEAR = 4332.59
-SATURN_DAYS_PER_YEAR = 10759.22
-URANUS_DAYS_PER_YEAR = 30688.5
-NEPTUNE_DAYS_PER_YEAR = 60182.0
 
 CELESTIAL_BODIES: dict[str, CelestialBodyOrbitalInfo] = {
-    "mercury": CelestialBodyOrbitalInfo("mercury", "mercury", 0.387, MERCURY_DAYS_PER_YEAR),
-    "venus": CelestialBodyOrbitalInfo("venus", "venus", 0.723, VENUS_DAYS_PER_YEAR),
-    "earth": CelestialBodyOrbitalInfo("earth", "earth", 1.000, EARTH_DAYS_PER_YEAR),
-    "mars": CelestialBodyOrbitalInfo("mars", "mars", 1.524, MARS_DAYS_PER_YEAR),
-    "jupiter": CelestialBodyOrbitalInfo("jupiter", "jupiter", 5.203, JUPITER_DAYS_PER_YEAR),
-    "saturn": CelestialBodyOrbitalInfo("saturn", "saturn", 9.537, SATURN_DAYS_PER_YEAR),
-    "uranus": CelestialBodyOrbitalInfo("uranus", "uranus", 19.191, URANUS_DAYS_PER_YEAR),
-    "neptune": CelestialBodyOrbitalInfo("neptune", "neptune", 30.069, NEPTUNE_DAYS_PER_YEAR),
+    MERCURY: CelestialBodyOrbitalInfo(
+        MERCURY, MERCURY, MERCURY_SEMI_MAJOR_AXIS_AU, MERCURY_ORBITAL_PERIOD_SECONDS
+    ),
+    VENUS: CelestialBodyOrbitalInfo(
+        VENUS, VENUS, VENUS_SEMI_MAJOR_AXIS_AU, VENUS_ORBITAL_PERIOD_SECONDS
+    ),
+    EARTH: CelestialBodyOrbitalInfo(
+        EARTH, EARTH, EARTH_SEMI_MAJOR_AXIS_AU, EARTH_ORBITAL_PERIOD_SECONDS
+    ),
+    MARS: CelestialBodyOrbitalInfo(
+        MARS, MARS, MARS_SEMI_MAJOR_AXIS_AU, MARS_ORBITAL_PERIOD_SECONDS
+    ),
+    JUPITER: CelestialBodyOrbitalInfo(
+        JUPITER, JUPITER, JUPITER_SEMI_MAJOR_AXIS_AU, JUPITER_ORBITAL_PERIOD_SECONDS
+    ),
+    SATURN: CelestialBodyOrbitalInfo(
+        SATURN, SATURN, SATURN_SEMI_MAJOR_AXIS_AU, SATURN_ORBITAL_PERIOD_SECONDS
+    ),
+    URANUS: CelestialBodyOrbitalInfo(
+        URANUS, URANUS, URANUS_SEMI_MAJOR_AXIS_AU, URANUS_ORBITAL_PERIOD_SECONDS
+    ),
+    NEPTUNE: CelestialBodyOrbitalInfo(
+        NEPTUNE, NEPTUNE, NEPTUNE_SEMI_MAJOR_AXIS_AU, NEPTUNE_ORBITAL_PERIOD_SECONDS
+    ),
 }
 
 
@@ -49,36 +89,36 @@ def get_body(name: str) -> CelestialBodyOrbitalInfo:
     return CELESTIAL_BODIES[key]
 
 
-def compute_synodic_period_days(
-    origin_celestial_body: CelestialBodyOrbitalInfo,
-    destination_celestial_body: CelestialBodyOrbitalInfo,
+def compute_synodic_period(
+    origin: CelestialBodyOrbitalInfo,
+    destination: CelestialBodyOrbitalInfo,
 ) -> float:
     """Time between successive similar alignments of the two bodies."""
-    inverted_origin_body_period = 1 / origin_celestial_body.orbital_period_days
-    inverted_destination_body_period = (
-        1 / destination_celestial_body.orbital_period_days
-    )
+    origin_mean_motion = 2 * np.pi / origin.orbital_period_seconds
+    destination_mean_motion = 2 * np.pi / destination.orbital_period_seconds
 
-    orbital_frequency_difference = abs(
-        inverted_origin_body_period - inverted_destination_body_period
-    )
+    mean_motion_difference = abs(origin_mean_motion - destination_mean_motion)
 
-    if orbital_frequency_difference == 0:
-        raise ValueError("Bodies with identical orbital periods have no synodic period")
+    if mean_motion_difference == 0:
+        raise ValueError("Identical orbital periods, synodic period is infinite")
 
-    return 1 / orbital_frequency_difference
+    synodic_period_seconds = 2 * np.pi / mean_motion_difference
+    return synodic_period_seconds
 
 
-def compute_hohmann_time_of_flight_in_earth_days(
-    origin_celestial_body: CelestialBodyOrbitalInfo,
-    destination_celestial_body: CelestialBodyOrbitalInfo,
+def compute_hohmann_time_of_flight(
+    origin: CelestialBodyOrbitalInfo,
+    destination: CelestialBodyOrbitalInfo,
+    mu: float = 1.32712440018e11,  # gravitational parameter of the Sun in km^3/s^2
 ) -> float:
     """One-way transfer time (days) of an idealized Hohmann transfer ellipse."""
-    transfer_semi_major_axis_au = (
-        origin_celestial_body.semi_major_axis_au
-        + destination_celestial_body.semi_major_axis_au
-    ) / 2
+    origin_axis_km = origin.semi_major_axis_au * AU_IN_KM
+    destination_axis_km = destination.semi_major_axis_au * AU_IN_KM
 
-    orbital_period_years = transfer_semi_major_axis_au**1.5
+    combine_orbital_axis_km = origin_axis_km + destination_axis_km
 
-    return EARTH_DAYS_PER_YEAR * orbital_period_years / 2
+    transfer_semi_major_axis_km = combine_orbital_axis_km / 2
+
+    time_of_flight_seconds = np.pi * np.sqrt(transfer_semi_major_axis_km**3 / mu)
+
+    return time_of_flight_seconds
