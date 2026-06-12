@@ -1,0 +1,23 @@
+[project]
+name = "planet-transit-calculator"
+version = "0.1.0"
+description = "Calculates the transit times betweeen planets"
+authors = [
+    {name = "brianthemessiah",email = "mindmeld42@gmail.com"}
+]
+readme = "README.md"
+requires-python = ">=3.12, <3.13"
+dependencies = [
+    "astropy (>=7.2.0,<8.0.0)",
+    "jplephem (>=2.24,<3.0)",
+    "numpy (>=2.4.6,<3.0.0)",
+    "matplotlib (>=3.11.0,<4.0.0)",
+    "debugpy (>=1.8.21,<2.0.0)"
+]
+
+[project.scripts]
+planet-transit = "planet_transit_calculator.cli:main"
+
+[build-system]
+requires = ["poetry-core>=2.0.0,<3.0.0"]
+build-backend = "poetry.core.masonry.api"

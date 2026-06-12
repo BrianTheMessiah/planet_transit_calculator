@@ -1,0 +1,40 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Earth -> Mars",
+            "type": "debugpy",
+            "request": "launch",
+            "module": "planet_transit_calculator",
+            "args": ["--from", "earth", "--to", "mars"],
+            "console": "integratedTerminal",
+            "justMyCode": true
+        },
+        {
+            "name": "Earth -> Mars (with plot)",
+            "type": "debugpy",
+            "request": "launch",
+            "module": "planet_transit_calculator",
+            "args": ["--from", "earth", "--to", "mars", "--plot", "porkchop.png"],
+            "console": "integratedTerminal",
+            "justMyCode": true
+        },
+        {
+            "name": "Custom transfer (prompt for args)",
+            "type": "debugpy",
+            "request": "launch",
+            "module": "planet_transit_calculator",
+            "args": "${command:pickArgs}",
+            "console": "integratedTerminal",
+            "justMyCode": true
+        },
+        {
+            "name": "Current file",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "${file}",
+            "console": "integratedTerminal",
+            "justMyCode": true
+        }
+    ]
+}
