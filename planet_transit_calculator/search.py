@@ -8,7 +8,7 @@ import astropy.units as u
 import numpy as np
 from astropy.time import Time
 
-from .bodies import BodyOrbitalInfo, hohmann_tof_days, synodic_period_days
+from .bodies import CelestialBodyOrbitalInfo, compute_hohmann_time_of_flight_in_earth_days, compute_synodic_period_days
 from .ephemeris import MU_SUN, get_state
 from .lambert import izzo_v0
 from .transfer import TransferResult
@@ -28,8 +28,8 @@ class SearchResult:
 
 
 def find_transfer_options(
-    origin: BodyOrbitalInfo,
-    destination: BodyOrbitalInfo,
+    origin: CelestialBodyOrbitalInfo,
+    destination: CelestialBodyOrbitalInfo,
     depart_after: Time,
     window_days: float | None = None,
     min_tof_days: float | None = None,
@@ -44,9 +44,9 @@ def find_transfer_options(
     options trading off time of flight against total delta-v.
     """
     if window_days is None:
-        window_days = synodic_period_days(origin, destination)
+        window_days = compute_synodic_period_days(origin, destination)
     if min_tof_days is None or max_tof_days is None:
-        hohmann = hohmann_tof_days(origin, destination)
+        hohmann = compute_hohmann_time_of_flight_in_earth_days(origin, destination)
         if min_tof_days is None:
             min_tof_days = max(10.0, 0.4 * hohmann)
         if max_tof_days is None:

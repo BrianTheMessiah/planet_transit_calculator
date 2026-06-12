@@ -7,7 +7,7 @@ from typing import Sequence
 
 from astropy.time import Time
 
-from .bodies import BODIES, get_body
+from .bodies import CELESTIAL_BODIES, get_body
 from .search import find_transfer_options
 
 
@@ -19,7 +19,7 @@ def build_parser() -> argparse.ArgumentParser:
             "using real-time planetary ephemeris data."
         ),
     )
-    body_names = ", ".join(sorted(BODIES))
+    body_names = ", ".join(sorted(CELESTIAL_BODIES))
     parser.add_argument("--from", dest="origin", required=True, help=f"Departure body ({body_names})")
     parser.add_argument("--to", dest="destination", required=True, help=f"Arrival body ({body_names})")
     parser.add_argument(

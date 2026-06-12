@@ -13,42 +13,72 @@ from dataclasses import dataclass
 
 
 @dataclass(frozen=True)
-class BodyOrbitalInfo:
+class CelestialBodyOrbitalInfo:
     name: str
     ephemeris_key: str
     semi_major_axis_au: float
     orbital_period_days: float
 
 
-BODIES: dict[str, BodyOrbitalInfo] = {
-    "mercury": BodyOrbitalInfo("mercury", "mercury", 0.387, 87.97),
-    "venus": BodyOrbitalInfo("venus", "venus", 0.723, 224.70),
-    "earth": BodyOrbitalInfo("earth", "earth", 1.000, 365.25),
-    "mars": BodyOrbitalInfo("mars", "mars", 1.524, 686.98),
-    "jupiter": BodyOrbitalInfo("jupiter", "jupiter", 5.203, 4332.59),
-    "saturn": BodyOrbitalInfo("saturn", "saturn", 9.537, 10759.22),
-    "uranus": BodyOrbitalInfo("uranus", "uranus", 19.191, 30688.5),
-    "neptune": BodyOrbitalInfo("neptune", "neptune", 30.069, 60182.0),
+MERCURY_DAYS_PER_YEAR = 87.97
+VENUS_DAYS_PER_YEAR = 224.70
+EARTH_DAYS_PER_YEAR = 365.25
+MARS_DAYS_PER_YEAR = 686.98
+JUPITER_DAYS_PER_YEAR = 4332.59
+SATURN_DAYS_PER_YEAR = 10759.22
+URANUS_DAYS_PER_YEAR = 30688.5
+NEPTUNE_DAYS_PER_YEAR = 60182.0
+
+CELESTIAL_BODIES: dict[str, CelestialBodyOrbitalInfo] = {
+    "mercury": CelestialBodyOrbitalInfo("mercury", "mercury", 0.387, MERCURY_DAYS_PER_YEAR),
+    "venus": CelestialBodyOrbitalInfo("venus", "venus", 0.723, VENUS_DAYS_PER_YEAR),
+    "earth": CelestialBodyOrbitalInfo("earth", "earth", 1.000, EARTH_DAYS_PER_YEAR),
+    "mars": CelestialBodyOrbitalInfo("mars", "mars", 1.524, MARS_DAYS_PER_YEAR),
+    "jupiter": CelestialBodyOrbitalInfo("jupiter", "jupiter", 5.203, JUPITER_DAYS_PER_YEAR),
+    "saturn": CelestialBodyOrbitalInfo("saturn", "saturn", 9.537, SATURN_DAYS_PER_YEAR),
+    "uranus": CelestialBodyOrbitalInfo("uranus", "uranus", 19.191, URANUS_DAYS_PER_YEAR),
+    "neptune": CelestialBodyOrbitalInfo("neptune", "neptune", 30.069, NEPTUNE_DAYS_PER_YEAR),
 }
 
 
-def get_body(name: str) -> BodyOrbitalInfo:
+def get_body(name: str) -> CelestialBodyOrbitalInfo:
     key = name.strip().lower()
-    if key not in BODIES:
-        valid = ", ".join(sorted(BODIES))
+    if key not in CELESTIAL_BODIES:
+        valid = ", ".join(sorted(CELESTIAL_BODIES))
         raise ValueError(f"Unknown body '{name}'. Valid options: {valid}")
-    return BODIES[key]
+    return CELESTIAL_BODIES[key]
 
 
-def synodic_period_days(a: BodyOrbitalInfo, b: BodyOrbitalInfo) -> float:
+def compute_synodic_period_days(
+    origin_celestial_body: CelestialBodyOrbitalInfo,
+    destination_celestial_body: CelestialBodyOrbitalInfo,
+) -> float:
     """Time between successive similar alignments of the two bodies."""
-    inv_diff = abs(1 / a.orbital_period_days - 1 / b.orbital_period_days)
-    if inv_diff == 0:
+    inverted_origin_body_period = 1 / origin_celestial_body.orbital_period_days
+    inverted_destination_body_period = (
+        1 / destination_celestial_body.orbital_period_days
+    )
+
+    orbital_frequency_difference = abs(
+        inverted_origin_body_period - inverted_destination_body_period
+    )
+
+    if orbital_frequency_difference == 0:
         raise ValueError("Bodies with identical orbital periods have no synodic period")
-    return 1 / inv_diff
+
+    return 1 / orbital_frequency_difference
 
 
-def hohmann_tof_days(a: BodyOrbitalInfo, b: BodyOrbitalInfo) -> float:
+def compute_hohmann_time_of_flight_in_earth_days(
+    origin_celestial_body: CelestialBodyOrbitalInfo,
+    destination_celestial_body: CelestialBodyOrbitalInfo,
+) -> float:
     """One-way transfer time (days) of an idealized Hohmann transfer ellipse."""
-    transfer_sma_au = (a.semi_major_axis_au + b.semi_major_axis_au) / 2
-    return 365.25 * transfer_sma_au**1.5 / 2
+    transfer_semi_major_axis_au = (
+        origin_celestial_body.semi_major_axis_au
+        + destination_celestial_body.semi_major_axis_au
+    ) / 2
+
+    orbital_period_years = transfer_semi_major_axis_au**1.5
+
+    return EARTH_DAYS_PER_YEAR * orbital_period_years / 2
