@@ -13,26 +13,26 @@ from dataclasses import dataclass
 
 
 @dataclass(frozen=True)
-class Body:
+class BodyOrbitalInfo:
     name: str
     ephemeris_key: str
     semi_major_axis_au: float
     orbital_period_days: float
 
 
-BODIES: dict[str, Body] = {
-    "mercury": Body("mercury", "mercury", 0.387, 87.97),
-    "venus": Body("venus", "venus", 0.723, 224.70),
-    "earth": Body("earth", "earth", 1.000, 365.25),
-    "mars": Body("mars", "mars", 1.524, 686.98),
-    "jupiter": Body("jupiter", "jupiter", 5.203, 4332.59),
-    "saturn": Body("saturn", "saturn", 9.537, 10759.22),
-    "uranus": Body("uranus", "uranus", 19.191, 30688.5),
-    "neptune": Body("neptune", "neptune", 30.069, 60182.0),
+BODIES: dict[str, BodyOrbitalInfo] = {
+    "mercury": BodyOrbitalInfo("mercury", "mercury", 0.387, 87.97),
+    "venus": BodyOrbitalInfo("venus", "venus", 0.723, 224.70),
+    "earth": BodyOrbitalInfo("earth", "earth", 1.000, 365.25),
+    "mars": BodyOrbitalInfo("mars", "mars", 1.524, 686.98),
+    "jupiter": BodyOrbitalInfo("jupiter", "jupiter", 5.203, 4332.59),
+    "saturn": BodyOrbitalInfo("saturn", "saturn", 9.537, 10759.22),
+    "uranus": BodyOrbitalInfo("uranus", "uranus", 19.191, 30688.5),
+    "neptune": BodyOrbitalInfo("neptune", "neptune", 30.069, 60182.0),
 }
 
 
-def get_body(name: str) -> Body:
+def get_body(name: str) -> BodyOrbitalInfo:
     key = name.strip().lower()
     if key not in BODIES:
         valid = ", ".join(sorted(BODIES))
@@ -40,7 +40,7 @@ def get_body(name: str) -> Body:
     return BODIES[key]
 
 
-def synodic_period_days(a: Body, b: Body) -> float:
+def synodic_period_days(a: BodyOrbitalInfo, b: BodyOrbitalInfo) -> float:
     """Time between successive similar alignments of the two bodies."""
     inv_diff = abs(1 / a.orbital_period_days - 1 / b.orbital_period_days)
     if inv_diff == 0:
@@ -48,7 +48,7 @@ def synodic_period_days(a: Body, b: Body) -> float:
     return 1 / inv_diff
 
 
-def hohmann_tof_days(a: Body, b: Body) -> float:
+def hohmann_tof_days(a: BodyOrbitalInfo, b: BodyOrbitalInfo) -> float:
     """One-way transfer time (days) of an idealized Hohmann transfer ellipse."""
     transfer_sma_au = (a.semi_major_axis_au + b.semi_major_axis_au) / 2
     return 365.25 * transfer_sma_au**1.5 / 2

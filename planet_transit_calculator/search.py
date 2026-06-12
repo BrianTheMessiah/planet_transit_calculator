@@ -8,7 +8,7 @@ import astropy.units as u
 import numpy as np
 from astropy.time import Time
 
-from .bodies import Body, hohmann_tof_days, synodic_period_days
+from .bodies import BodyOrbitalInfo, hohmann_tof_days, synodic_period_days
 from .ephemeris import MU_SUN, get_state
 from .lambert import izzo_v0
 from .transfer import TransferResult
@@ -28,8 +28,8 @@ class SearchResult:
 
 
 def find_transfer_options(
-    origin: Body,
-    destination: Body,
+    origin: BodyOrbitalInfo,
+    destination: BodyOrbitalInfo,
     depart_after: Time,
     window_days: float | None = None,
     min_tof_days: float | None = None,
