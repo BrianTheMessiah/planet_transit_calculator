@@ -7,7 +7,7 @@ from typing import Sequence
 
 from astropy.time import Time
 
-from .bodies import CELESTIAL_BODIES, get_body
+from .bodies import CELESTIAL_BODIES, get_celestial_body
 from .search import find_transfer_options
 
 
@@ -45,8 +45,8 @@ def main(argv: Sequence[str] | None = None) -> int:
     args = parser.parse_args(argv)
 
     try:
-        origin = get_body(args.origin)
-        destination = get_body(args.destination)
+        origin = get_celestial_body(args.origin)
+        destination = get_celestial_body(args.destination)
     except ValueError as exc:
         parser.error(str(exc))
 
@@ -59,9 +59,9 @@ def main(argv: Sequence[str] | None = None) -> int:
         origin=origin,
         destination=destination,
         depart_after=depart_after,
-        window_days=args.window_days,
-        min_tof_days=args.min_tof,
-        max_tof_days=args.max_tof,
+        window_seconds=args.window_days,
+        min_time_of_flight_seconds=args.min_tof,
+        max_time_of_flight_seconds=args.max_tof,
         top_n=args.top,
     )
 
