@@ -1,12 +1,12 @@
 from attrs import define
 import numpy as np
-from planet_transit_calculator.bodies import CelestialBodyOrbitalData
+from planet_transit_calculator.bodies import CelestialBodyOrbit
 
 
 @define
 class CalcluateSearchWindows:
-    origin: CelestialBodyOrbitalData
-    destination: CelestialBodyOrbitalData
+    origin_celestial_body: CelestialBodyOrbit
+    destination_celestial_body: CelestialBodyOrbit
     mu: float
 
     min_time_of_flight_seconds: float | None = None
@@ -15,6 +15,19 @@ class CalcluateSearchWindows:
     n_tof: int = 50
 
     def calculate_depature_and_times_of_flight(self, window_seconds):
+        """
+        Compute departure-time offsets and times of flight for a Lambert transfer.
+
+        ### Parameters
+        - window_seconds (float | None): Total search window in seconds. If None, uses the synodic period.
+
+        ### Returns
+        - departure_offsets (np.ndarray): Offsets from the initial epoch (s).
+        - tofs (np.ndarray): Times of flight to evaluate (s).
+
+        ### Notes
+        Defines the departure/TOF grid for Lambert transfer search.
+        """
         if window_seconds is None:
             window_seconds = self._compute_synodic_period()
         if (
@@ -37,9 +50,27 @@ class CalcluateSearchWindows:
     def _compute_synodic_period(
         self,
     ) -> float:
-        """Time between successive similar alignments of the two bodies."""
-        origin_mean_motion = 2 * np.pi / self.origin.orbital_period_seconds
-        destination_mean_motion = 2 * np.pi / self.destination.orbital_period_seconds
+        """
+        Computes how often the two planets are in the same relative position, which is the natural period of transfer opportunities.
+
+        ### Returns
+        - synodic_period_seconds (float): Synodic period in seconds.
+
+        ### Raises
+        - ValueError: If the planets have identical orbital periods, resulting in an infinite synodic period.
+
+        ### Notes
+        The synodic period is calculated using the mean motions of the two planets.
+        It represents the time it takes for the planets to realign in their orbits,
+        which is crucial for planning interplanetary transfers. If the planets have identical orbital periods,
+        the synodic period is infinite and a ValueError is raised.
+        """
+        origin_mean_motion = (
+            2 * np.pi / self.origin_celestial_body.orbital_period_seconds
+        )
+        destination_mean_motion = (
+            2 * np.pi / self.destination_celestial_body.orbital_period_seconds
+        )
 
         mean_motion_difference = abs(origin_mean_motion - destination_mean_motion)
 
@@ -52,15 +83,21 @@ class CalcluateSearchWindows:
     def _compute_hohmann_time_of_flight(
         self,
     ) -> float:
-        """One-way transfer time (days) of an idealized Hohmann transfer ellipse."""
-        combine_orbital_axis_km = (
-            self.origin.semi_major_axis_km + self.destination.semi_major_axis_km
-        )
+        """
+        One-way transfer time (days) of an idealized Hohmann transfer ellipse.
 
-        transfer_semi_major_axis_km = combine_orbital_axis_km / 2
+        ### Returns
+        - time_of_flight_seconds (float): Time of flight in seconds.
 
-        time_of_flight_seconds = np.pi * np.sqrt(
-            transfer_semi_major_axis_km**3 / self.mu
-        )
+        ### Notes
+        The Hohmann transfer is an efficient method for transferring between two circular orbits.
+        """
+        # Semi-major axis of the Hohmann transfer ellipse
+        transfer_semi_major_axis = (
+            self.origin_celestial_body.orbit_radius
+            + self.destination_celestial_body.orbit_radius
+        ) / 2
 
-        return time_of_flight_seconds
+        return (
+            np.sqrt(transfer_semi_major_axis**3 / self.mu) * np.pi
+        )  # Time of flight in seconds

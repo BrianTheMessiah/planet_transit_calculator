@@ -11,6 +11,7 @@
 - To travel to a different celestial body, the origin body must be in a certain position relative to the destination body 
     - Space missions must wait for the alignment to occur, opening a launch window 
 - ![](images/hohmann_diagram.png)
+    - This represents an ideal Hohmann transfer where the origin location is 180 degrees from the destination location 
     - The yellow ellipse diagrams what a Hohmann transfer would look like 
     - The perapsis (the point closest to the central celestial body of the orbit) is where the 1 and 2 ellipses touch
     - The apoapsis (the point farthest from the central body of the orbit) is where the 2 and 3 ellipses touch
@@ -22,11 +23,19 @@
             - When increasing speed at perapsis, spacecrafts apoapsis gets raised (stretch the far side of the orbit outward) 
             - In Hohmann transfer from lower to higher circular orbit, first burn at periapsis is the prograde burn 
 - To lower periapsis, do a retrograde burn at apoapsis (moves you toward a lower orbit) 
-    - **What does retrograde burn mean in this case?** 
+    - **What does retrograde burn mean in this case?**
+        - Retrograde burn means spacecraft fires its engine in the exact opposite direction of the current velocity vector  
 - Type I and Type II
     - Ideal Hohmann transfer orbit is when a spacecraft can transfer between two orbits at exactly 180 degrees (half an orbit of the Hohmann transfer) 
-        - **What does 180 degrees around the primary mean**
-        - **What does coplanar mean** 
+        - **What does 180 degrees around the primary mean?**
+            - 180 degrees around the primary means that two orbital positions are on opposite sides of the central celestial body (literally half a circle apart)
+            - Example 
+                - Draw a line from the Sun to Earth 
+                - Draw a line from the Sun to Mars 
+                - If the combined lines form a stright line, its the ideal alignment for a perfect Hohmann transfer 
+        - **What does coplanar mean?** 
+            - Coplanar means both orbits lie in the same 2-D plane 
+            - No tilt or inclination difference 
     - Type I: Orbit traversing less than 180 degrees around the primary  
     - Type II: Orbit traversing more than 180 degrees around the primary 
 - **Does the Hohmann transfer assume your already in space?**
@@ -40,18 +49,39 @@
 ### Calculation 
     - Total energy of a small body orbiting a much larger body is the sum of its kinetic energy and potential energy 
 - This total energy also equals half the potential at the average distance $\alpha$ (semi-major axis)
-    - **What is the semi-major axis**
+    - **What is the semi-major axis?**
+        - Number that defines the size of an orbit 
+        - ![](images/semi_axis.png)
     - $$ E = \frac{mv^2}{2} - \frac{GMm}{r} = - \frac{GMm}{2\alpha} $$
-    - E: Total mechanical energy of the orbit (kinetic + potential) 
-    - m: Mass of orbiting body (satellite, spacecraft planet) 
-    - v: Instantaneous orbital speed at distance r 
-    - G: Universal gravitational constant ($$ 6.674 * 10^-11 m^3 kg^{-1} s^{-2} $$)
-        - **What is the universal gravitational constant?**
-    - M: Mass of the central celestial body (Earth, Sun, Jupiter)
-    - r: Instantaneous distance between the two bodies 
-    - a: Semi major axis of the orbit 
+        - $E$: Total mechanical energy of the orbit (kinetic + potential) 
+        - $m$: Mass of orbiting body (satellite, spacecraft planet) 
+        - $v$: Speed of the orbiting body  
+        - $G$: Universal gravitational constant ($$ 6.674 * 10^-11 m^3 kg^{-1} s^{-2} $$)
+            - **What is the universal gravitational constant?**
+        - $M$: Mass of the central celestial body (Earth, Sun, Jupiter)
+        - $r$: Instantaneous distance between the two bodies 
+        - $a$: Semi major axis of the orbit 
+        - Solving the above equation for velocity
+            - $$ v^2 = \mu (\frac{2}{r} - \frac{1}{\alpha}) $$
+            - $v$: velocity 
+            - $\mu$: Standard gravitational constant
+            - $r$: Distance of the orbiting body from the primary celestial body 
+            - $\alpha$: Semi major axis of the body's orbit
+        - $$ \Delta v $$ for Hohmann transfer 
+            - $$ \Delta v_{1} = \sqrt{\frac{\mu}{r_{1}}} (\sqrt{\frac{2r_{2}}{r_{1} + r_{2}}} - 1) $$
+            - $$ \Delta v_{2} = \sqrt{\frac{\mu}{r_{2}}} (1 - \sqrt{\frac{2r_{2}}{r_{1} + r_{2}}}) $$
+            - $$ \Delta v_{1} $$: First burn to leave the initial circular orbit and enter elliptical transfer orbit 
+            - $$ \Delta v_{2} $$: Second burn at the apoapsis of the transfer ellipse to circularize into the final orbit 
+            - $$ r_{1} $$: Radius of the intial circular orbit (distance from the center of the central celestial body to the spacecraft before the first burn 
+            - $$ r_{2} $$: Radius of the final circular orbit (distance from the center of the central celestial body after the second burn)
+            - $$ \sqrt{\frac{\mu}{r_{1}}} \text{ and } \sqrt{\frac{\mu}{r_{2}}} $$: Circular orbit velocities at radii $r_{1}$ and $r_{2}$
+            - $$ \sqrt{\frac{2r_{2}}{r_{1} + r_{2}}} \text{ and } \sqrt{\frac{2r_{1}}{r_{1} + r_{2}}} $$: Velocity ratios derived from the vis-viva equation applied to transfer ellipse at the periapsis (for $\Delta v_{1}$) and apoapsis (for $\Delta v_{2}$)
+                - Terms encode how fast the spacecraft moves on elliptical transfer orbit
+        - Time taken to transfer between orbits is 
+            - $$ t_{H} = \frac{1}{2} \sqrt{\frac{4\pi^2a^3_{H}}{\mu}} = \pi\sqrt{\frac{(r_{1} + r_{2})^3}{8\mu}} $$
+            - test
     - For a circle semi-major axis = radius
-    - In an ellipse, semi-major axis is half the long axis  
+    - In an ellipse, semi-major axis is half the long axis
 - **What causes circular orbits?**
     - Gravity naturally wants to pull spacecraft/celestial bodies into an ellipse 
     - Circular orbit is special case where spacecraft speed matches exact value needed for constant-radius freefall
@@ -61,6 +91,8 @@
         - $$ \mu $$: Standard gravitational parameter of the central celestial body 
             - $$ \mu=GM $$
             - **What is the standard gravitational parameter $$ \mu $$?** 
+                - Tells how strong the gravity of a celestial body is 
+                - $$ t_{h} $$
 
 ### Questions 
 1. What does $\frac{m^3}{s^2}$ mean

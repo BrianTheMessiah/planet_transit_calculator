@@ -61,7 +61,7 @@ NEPTUNE_APHELION_DISTANCE_KM = 4545.67e6
 
 
 @dataclass
-class CelestialBodyOrbitalData:
+class CelestialBodyOrbit:
     """
     Orbital data for a celestial body, used for sizing search windows.
 
@@ -85,12 +85,12 @@ class CelestialBodyOrbitalData:
     orbital_period_seconds: float
     mu: float = 0.0  # gravitational parameter of the central body, km^3/s^2, not used for planets but can be set for moons
 
-    semi_major_axis_km: float = field(init=False)
+    orbit_radius: float = field(init=False)
     semi_major_axis_au: float = field(init=False)
 
     def __post_init__(self) -> None:
         semi_major_axis_km = self._compute_semi_major_axis_km()
-        self.semi_major_axis_km = semi_major_axis_km
+        self.orbit_radius = semi_major_axis_km
         self.major_axis_au = self._convert_km_to_au(semi_major_axis_km)
 
     def _compute_semi_major_axis_km(self) -> float:
@@ -102,57 +102,57 @@ class CelestialBodyOrbitalData:
         return km / AU_IN_KM
 
 
-CELESTIAL_BODIES: dict[str, CelestialBodyOrbitalData] = {
-    MERCURY: CelestialBodyOrbitalData(
+CELESTIAL_BODIES: dict[str, CelestialBodyOrbit] = {
+    MERCURY: CelestialBodyOrbit(
         MERCURY,
         MERCURY,
         MERCURY_PERIHELION_DISTANCE_KM,
         MERCURY_APHELION_DISTANCE_KM,
         MERCURY_ORBITAL_PERIOD_SECONDS,
     ),
-    VENUS: CelestialBodyOrbitalData(
+    VENUS: CelestialBodyOrbit(
         VENUS,
         VENUS,
         VENUS_PERIHELION_DISTANCE_KM,
         VENUS_APHELION_DISTANCE_KM,
         VENUS_ORBITAL_PERIOD_SECONDS,
     ),
-    EARTH: CelestialBodyOrbitalData(
+    EARTH: CelestialBodyOrbit(
         EARTH,
         EARTH,
         EARTH_PERIHELION_DISTANCE_KM,
         EARTH_APHELION_DISTANCE_KM,
         EARTH_ORBITAL_PERIOD_SECONDS,
     ),
-    MARS: CelestialBodyOrbitalData(
+    MARS: CelestialBodyOrbit(
         MARS,
         MARS,
         MARS_PERIHELION_DISTANCE_KM,
         MARS_APHELION_DISTANCE_KM,
         MARS_ORBITAL_PERIOD_SECONDS,
     ),
-    JUPITER: CelestialBodyOrbitalData(
+    JUPITER: CelestialBodyOrbit(
         JUPITER,
         JUPITER,
         JUPITER_PERIHELION_DISTANCE_KM,
         JUPITER_APHELION_DISTANCE_KM,
         JUPITER_ORBITAL_PERIOD_SECONDS,
     ),
-    SATURN: CelestialBodyOrbitalData(
+    SATURN: CelestialBodyOrbit(
         SATURN,
         SATURN,
         SATURN_PERIHELION_DISTANCE_KM,
         SATURN_APHELION_DISTANCE_KM,
         SATURN_ORBITAL_PERIOD_SECONDS,
     ),
-    URANUS: CelestialBodyOrbitalData(
+    URANUS: CelestialBodyOrbit(
         URANUS,
         URANUS,
         URANUS_PERIHELION_DISTANCE_KM,
         URANUS_APHELION_DISTANCE_KM,
         URANUS_ORBITAL_PERIOD_SECONDS,
     ),
-    NEPTUNE: CelestialBodyOrbitalData(
+    NEPTUNE: CelestialBodyOrbit(
         NEPTUNE,
         NEPTUNE,
         NEPTUNE_PERIHELION_DISTANCE_KM,
@@ -161,7 +161,7 @@ CELESTIAL_BODIES: dict[str, CelestialBodyOrbitalData] = {
     ),
 }
 
-def get_celestial_body(name: str) -> CelestialBodyOrbitalData:
+def get_celestial_body(name: str) -> CelestialBodyOrbit:
     key = name.strip().lower()
     if key not in CELESTIAL_BODIES:
         valid = ", ".join(sorted(CELESTIAL_BODIES))

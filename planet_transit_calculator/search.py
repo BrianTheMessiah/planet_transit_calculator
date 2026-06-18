@@ -10,7 +10,7 @@ from astropy.time import Time
 
 from .calculate_search_windows import CalcluateSearchWindows
 from .bodies import (
-    CelestialBodyOrbitalData,
+    CelestialBodyOrbit,
 )
 from .ephemeris import MU_SUN, get_state
 from .lambert import izzo_v0
@@ -31,8 +31,8 @@ class SearchResult:
 
 
 def find_transfer_options(
-    origin: CelestialBodyOrbitalData,
-    destination: CelestialBodyOrbitalData,
+    origin: CelestialBodyOrbit,
+    destination: CelestialBodyOrbit,
     depart_after: Time,
     window_seconds: float | None = None,
     min_time_of_flight_seconds: float | None = None,
@@ -47,8 +47,8 @@ def find_transfer_options(
     options trading off time of flight against total delta-v.
     """
     calculate_search_windows = CalcluateSearchWindows(
-        origin=origin,
-        destination=destination,
+        origin_celestial_body=origin,
+        destination_celestial_body=destination,
         mu=MU_SUN,
         min_time_of_flight_seconds=min_time_of_flight_seconds,
         max_time_of_flight_seconds=max_time_of_flight_seconds,
