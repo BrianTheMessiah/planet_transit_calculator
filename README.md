@@ -71,14 +71,21 @@
             - $$ \Delta v_{1} = \sqrt{\frac{\mu}{r_{1}}} (\sqrt{\frac{2r_{2}}{r_{1} + r_{2}}} - 1) $$
             - $$ \Delta v_{2} = \sqrt{\frac{\mu}{r_{2}}} (1 - \sqrt{\frac{2r_{2}}{r_{1} + r_{2}}}) $$
             - $$ \Delta v_{1} $$: First burn to leave the initial circular orbit and enter elliptical transfer orbit 
-            - $$ \Delta v_{2} $$: Second burn at the apoapsis of the transfer ellipse to circularize into the final orbit 
+            - $$ \Delta v_{2} $$: Second burn at the apoapsis of the transfer ellipse to circularize into the final orbit
+            - **What is $ r $ and how is it calculated in elliptic orbits?**
+                - $r$ is the distance from the central celestial body to the spacecraft at any point in the orbit
+                - In an elliptical orbit, $r$ changes as the spacecraft moves along its path
+                - $$ r(\nu) = \frac{\alpha(1 - e)}{1 + e cos(\nu)} $$
+                - $\nu$: Angle from periapsis (True Anomaly)
+                - $\alpha$: Semi-major axis of the ellipse 
+                - $e$: Eccentricity
             - $$ r_{1} $$: Radius of the intial circular orbit (distance from the center of the central celestial body to the spacecraft before the first burn 
             - $$ r_{2} $$: Radius of the final circular orbit (distance from the center of the central celestial body after the second burn)
             - $$ \sqrt{\frac{\mu}{r_{1}}} \text{ and } \sqrt{\frac{\mu}{r_{2}}} $$: Circular orbit velocities at radii $r_{1}$ and $r_{2}$
             - $$ \sqrt{\frac{2r_{2}}{r_{1} + r_{2}}} \text{ and } \sqrt{\frac{2r_{1}}{r_{1} + r_{2}}} $$: Velocity ratios derived from the vis-viva equation applied to transfer ellipse at the periapsis (for $\Delta v_{1}$) and apoapsis (for $\Delta v_{2}$)
                 - Terms encode how fast the spacecraft moves on elliptical transfer orbit
         - Time taken to transfer between orbits is 
-            - $$ t_{H} = \frac{1}{2} \sqrt{\frac{4\pi^2a^3_{H}}{\mu}} = \pi\sqrt{\frac{(r_{1} + r_{2})^3}{8\mu}} $$
+            - $$ t_{H} = \frac{1}{2} \sqrt{\frac{4\pi^2a_{H}^3}{\mu}} = \pi\sqrt{\frac{(r_{1} + r_{2})^3}{8\mu}} $$
             - test
     - For a circle semi-major axis = radius
     - In an ellipse, semi-major axis is half the long axis

@@ -5,16 +5,26 @@ astronomical constants used only to size default search windows
 (synodic period for departure dates, Hohmann time for flight duration).
 They are not used in the delta-v calculations themselves, which rely on
 real ephemeris positions/velocities (see ephemeris.py).
+
+Orbital radii (semi-major axes) derived from perihelion/aphelion:
+
+    Body      Perihelion (km)   Aphelion (km)    Orbit Radius (km)   Orbit Radius (AU)
+    --------  ---------------   -------------    -----------------   -----------------
+    Mercury        46.00e6          69.82e6            57.91e6              0.387
+    Venus         107.48e6         108.94e6            108.21e6             0.723
+    Earth         147.09e6         152.10e6            149.60e6             1.000
+    Mars          206.62e6         249.23e6            227.93e6             1.524
+    Jupiter       740.52e6         816.62e6            778.57e6             5.203
+    Saturn       1352.55e6        1514.50e6           1433.53e6             9.579
+    Uranus       2741.30e6        3001.39e6           2871.35e6            19.191
+    Neptune      4444.45e6        4545.67e6           4495.06e6            30.069
 """
 
 from __future__ import annotations
 
 from dataclasses import dataclass, field
 
-import numpy as np
-from attrs import define
 
-AU_IN_KM = 149_597_870.7
 SUN_MU_KM3_S2 = 1.32712440018e11
 
 MERCURY = "mercury"
@@ -26,38 +36,40 @@ SATURN = "saturn"
 URANUS = "uranus"
 NEPTUNE = "neptune"
 
-MERCURY_ORBITAL_PERIOD_SECONDS = 87.97 * 86400
-VENUS_ORBITAL_PERIOD_SECONDS = 224.70 * 86400
-EARTH_ORBITAL_PERIOD_SECONDS = 365.25 * 86400
-MARS_ORBITAL_PERIOD_SECONDS = 686.98 * 86400
-JUPITER_ORBITAL_PERIOD_SECONDS = 4332.59 * 86400
-SATURN_ORBITAL_PERIOD_SECONDS = 10759.22 * 86400
-URANUS_ORBITAL_PERIOD_SECONDS = 30688.5 * 86400
-NEPTUNE_ORBITAL_PERIOD_SECONDS = 60182.0 * 86400
+class OrbitalPeriods:
+    """Sidereal orbital periods in seconds."""
+    MERCURY = 87.97 * 86400
+    VENUS = 224.70 * 86400
+    EARTH = 365.25 * 86400
+    MARS = 686.98 * 86400
+    JUPITER = 4332.59 * 86400
+    SATURN = 10759.22 * 86400
+    URANUS = 30688.5 * 86400
+    NEPTUNE = 60182.0 * 86400
 
-MERCURY_PERIHELION_DISTANCE_KM = 46.00e6
-MERCURY_APHELION_DISTANCE_KM = 69.82e6
 
-VENUS_PERIHELION_DISTANCE_KM = 107.48e6
-VENUS_APHELION_DISTANCE_KM = 108.94e6
+class PerihelionDistances:
+    """Closest approach to the Sun, in kilometers."""
+    MERCURY = 46.00e6
+    VENUS = 107.48e6
+    EARTH = 147.09e6
+    MARS = 206.62e6
+    JUPITER = 740.52e6
+    SATURN = 1352.55e6
+    URANUS = 2741.30e6
+    NEPTUNE = 4444.45e6
 
-EARTH_PERIHELION_DISTANCE_KM = 147.09e6
-EARTH_APHELION_DISTANCE_KM = 152.10e6
 
-MARS_PERIHELION_DISTANCE_KM = 206.62e6
-MARS_APHELION_DISTANCE_KM = 249.23e6
-
-JUPITER_PERIHELION_DISTANCE_KM = 740.52e6
-JUPITER_APHELION_DISTANCE_KM = 816.62e6
-
-SATURN_PERIHELION_DISTANCE_KM = 1352.55e6
-SATURN_APHELION_DISTANCE_KM = 1514.50e6
-
-URANUS_PERIHELION_DISTANCE_KM = 2741.30e6
-URANUS_APHELION_DISTANCE_KM = 3001.39e6
-
-NEPTUNE_PERIHELION_DISTANCE_KM = 4444.45e6
-NEPTUNE_APHELION_DISTANCE_KM = 4545.67e6
+class AphelionDistances:
+    """Farthest point from the Sun, in kilometers."""
+    MERCURY = 69.82e6
+    VENUS = 108.94e6
+    EARTH = 152.10e6
+    MARS = 249.23e6
+    JUPITER = 816.62e6
+    SATURN = 1514.50e6
+    URANUS = 3001.39e6
+    NEPTUNE = 4545.67e6
 
 
 @dataclass
@@ -73,7 +85,7 @@ class CelestialBodyOrbit:
         - `orbital_period_seconds`: Orbital period of the body around the Sun, in seconds
         - `mu`: Gravitational parameter of the central body (e.g. the Sun) in km^3/s^2. Not
           used for planets but can be set for moons.
-        - `semi_major_axis_km`/`semi_major_axis_au`: Semi-major axis of the body's orbit
+        - `orbit_radius`/`semi_major_axis_au`: Semi-major axis of the body's orbit
           around the Sun, in kilometers/astronomical units. Derived from
           `perihelion_distance_km` and `aphelion_distance_km`.
     """
@@ -86,78 +98,73 @@ class CelestialBodyOrbit:
     mu: float = 0.0  # gravitational parameter of the central body, km^3/s^2, not used for planets but can be set for moons
 
     orbit_radius: float = field(init=False)
-    semi_major_axis_au: float = field(init=False)
 
     def __post_init__(self) -> None:
-        semi_major_axis_km = self._compute_semi_major_axis_km()
+        semi_major_axis_km = self.compute_orbit_radius_km(self.perihelion_distance_km, self.aphelion_distance_km)
         self.orbit_radius = semi_major_axis_km
-        self.major_axis_au = self._convert_km_to_au(semi_major_axis_km)
 
-    def _compute_semi_major_axis_km(self) -> float:
-        """Semi-major axis is the average of the perihelion and aphelion distances."""
-        return (self.perihelion_distance_km + self.aphelion_distance_km) / 2
-
-    def _convert_km_to_au(self, km: float) -> float:
-        """Convert kilometers to astronomical units."""
-        return km / AU_IN_KM
+    @staticmethod
+    def compute_orbit_radius_km(perihelion_km: float, aphelion_km: float) -> float:
+        """Semi-major axis in km: the average of perihelion and aphelion distances."""
+        return (perihelion_km + aphelion_km) / 2
 
 
 CELESTIAL_BODIES: dict[str, CelestialBodyOrbit] = {
     MERCURY: CelestialBodyOrbit(
         MERCURY,
         MERCURY,
-        MERCURY_PERIHELION_DISTANCE_KM,
-        MERCURY_APHELION_DISTANCE_KM,
-        MERCURY_ORBITAL_PERIOD_SECONDS,
+        PerihelionDistances.MERCURY,
+        AphelionDistances.MERCURY,
+        OrbitalPeriods.MERCURY,
     ),
     VENUS: CelestialBodyOrbit(
         VENUS,
         VENUS,
-        VENUS_PERIHELION_DISTANCE_KM,
-        VENUS_APHELION_DISTANCE_KM,
-        VENUS_ORBITAL_PERIOD_SECONDS,
+        PerihelionDistances.VENUS,
+        AphelionDistances.VENUS,
+        OrbitalPeriods.VENUS,
     ),
     EARTH: CelestialBodyOrbit(
         EARTH,
         EARTH,
-        EARTH_PERIHELION_DISTANCE_KM,
-        EARTH_APHELION_DISTANCE_KM,
-        EARTH_ORBITAL_PERIOD_SECONDS,
+        PerihelionDistances.EARTH,
+        AphelionDistances.EARTH,
+        OrbitalPeriods.EARTH,
     ),
     MARS: CelestialBodyOrbit(
         MARS,
         MARS,
-        MARS_PERIHELION_DISTANCE_KM,
-        MARS_APHELION_DISTANCE_KM,
-        MARS_ORBITAL_PERIOD_SECONDS,
+        PerihelionDistances.MARS,
+        AphelionDistances.MARS,
+        OrbitalPeriods.MARS,
     ),
     JUPITER: CelestialBodyOrbit(
         JUPITER,
         JUPITER,
-        JUPITER_PERIHELION_DISTANCE_KM,
-        JUPITER_APHELION_DISTANCE_KM,
-        JUPITER_ORBITAL_PERIOD_SECONDS,
+        PerihelionDistances.JUPITER,
+        AphelionDistances.JUPITER,
+        OrbitalPeriods.JUPITER,
     ),
     SATURN: CelestialBodyOrbit(
         SATURN,
         SATURN,
-        SATURN_PERIHELION_DISTANCE_KM,
-        SATURN_APHELION_DISTANCE_KM,
-        SATURN_ORBITAL_PERIOD_SECONDS,
+        PerihelionDistances.SATURN,
+        AphelionDistances.SATURN,
+        OrbitalPeriods.SATURN,
     ),
     URANUS: CelestialBodyOrbit(
         URANUS,
         URANUS,
-        URANUS_PERIHELION_DISTANCE_KM,
-        URANUS_APHELION_DISTANCE_KM,
-        URANUS_ORBITAL_PERIOD_SECONDS,
+        PerihelionDistances.URANUS,
+        AphelionDistances.URANUS,
+        OrbitalPeriods.URANUS,
     ),
     NEPTUNE: CelestialBodyOrbit(
         NEPTUNE,
         NEPTUNE,
-        NEPTUNE_PERIHELION_DISTANCE_KM,
-        NEPTUNE_APHELION_DISTANCE_KM,
-        NEPTUNE_ORBITAL_PERIOD_SECONDS,
+        PerihelionDistances.NEPTUNE,
+        AphelionDistances.NEPTUNE,
+        OrbitalPeriods.NEPTUNE,
     ),
 }
 
