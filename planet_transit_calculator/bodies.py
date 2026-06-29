@@ -77,7 +77,7 @@ class CelestialBodyOrbit:
     """
     Orbital data for a celestial body, used for sizing search windows.
 
-    Parameters:
+    ### Parameters:
         - `name`: Common name of the body (e.g. "Earth")
         - `ephemeris_key`: Key to use when looking up ephemeris data (e.g. "earth")
         - `perihelion_distance_km`: Closest distance to the Sun, in kilometers
@@ -85,7 +85,7 @@ class CelestialBodyOrbit:
         - `orbital_period_seconds`: Orbital period of the body around the Sun, in seconds
         - `mu`: Gravitational parameter of the central body (e.g. the Sun) in km^3/s^2. Not
           used for planets but can be set for moons.
-        - `orbit_radius`/`semi_major_axis_au`: Semi-major axis of the body's orbit
+        - `orbit_radius`: Semi-major axis of the body's orbit
           around the Sun, in kilometers/astronomical units. Derived from
           `perihelion_distance_km` and `aphelion_distance_km`.
     """

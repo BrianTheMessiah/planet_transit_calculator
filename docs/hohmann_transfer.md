@@ -1,6 +1,4 @@
-# planet_transit_calculator
-
-### What is a Hohmann Transfer Orbit?
+# What is a Hohmann Transfer Orbit?
 - Hohmann Transfer Orbit-Orbital maneuver used to transfer spacecraft between two orbits of different altitudes around a central body 
 - Idealized case of the Hohmann Transfer is when the orbits are both circular and *coplanar* 
     - *coplanar* means when they are on the same plane 
@@ -47,7 +45,7 @@
     - Perform the Hohmann departure burn at periapsis of that orbit 
     - First burn is one that raises apoapsis to the target orbit 
 ### Calculation 
-    - Total energy of a small body orbiting a much larger body is the sum of its kinetic energy and potential energy 
+- Total energy of a small body orbiting a much larger body is the sum of its kinetic energy and potential energy 
 - This total energy also equals half the potential at the average distance $\alpha$ (semi-major axis)
     - **What is the semi-major axis?**
         - Number that defines the size of an orbit 
