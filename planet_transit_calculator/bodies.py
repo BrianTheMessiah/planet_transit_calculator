@@ -23,7 +23,7 @@ Orbital radii (semi-major axes) derived from perihelion/aphelion:
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-
+import numpy as np
 
 SUN_MU_KM3_S2 = 1.32712440018e11
 
@@ -35,17 +35,6 @@ JUPITER = "jupiter"
 SATURN = "saturn"
 URANUS = "uranus"
 NEPTUNE = "neptune"
-
-class OrbitalPeriods:
-    """Sidereal orbital periods in seconds."""
-    MERCURY = 87.97 * 86400
-    VENUS = 224.70 * 86400
-    EARTH = 365.25 * 86400
-    MARS = 686.98 * 86400
-    JUPITER = 4332.59 * 86400
-    SATURN = 10759.22 * 86400
-    URANUS = 30688.5 * 86400
-    NEPTUNE = 60182.0 * 86400
 
 
 class PerihelionDistances:
@@ -94,20 +83,25 @@ class CelestialBodyOrbit:
     ephemeris_key: str
     perihelion_distance_km: float  # closest distance to the Sun
     aphelion_distance_km: float  # farthest distance to the Sun
-    orbital_period_seconds: float
+    orbital_period_seconds: float = field(init=False)  # orbital period of the body around the Sun, in seconds
     mu: float = 0.0  # gravitational parameter of the central body, km^3/s^2, not used for planets but can be set for moons
 
     orbit_radius: float = field(init=False)
 
     def __post_init__(self) -> None:
-        semi_major_axis_km = self.compute_orbit_radius_km(self.perihelion_distance_km, self.aphelion_distance_km)
+        semi_major_axis_km = self.compute_orbit_radius_around_sun_km(self.perihelion_distance_km, self.aphelion_distance_km)
         self.orbit_radius = semi_major_axis_km
+        self.orbital_period_seconds = self.compute_orbital_period_around_sun_in_seconds(semi_major_axis_km)
 
     @staticmethod
-    def compute_orbit_radius_km(perihelion_km: float, aphelion_km: float) -> float:
-        """Semi-major axis in km: the average of perihelion and aphelion distances."""
+    def compute_orbit_radius_around_sun_km(perihelion_km: float, aphelion_km: float) -> float:
+        """Semi-major axis of the orbit around the Sun, in km: the average of perihelion and aphelion distances."""
         return (perihelion_km + aphelion_km) / 2
 
+    @staticmethod
+    def compute_orbital_period_around_sun_in_seconds(orbit_radius_km: float) -> float:
+        """Orbital period in seconds using Kepler's third law."""
+        return 2 * np.pi * np.sqrt(orbit_radius_km**3 / SUN_MU_KM3_S2)
 
 CELESTIAL_BODIES: dict[str, CelestialBodyOrbit] = {
     MERCURY: CelestialBodyOrbit(
@@ -115,57 +109,49 @@ CELESTIAL_BODIES: dict[str, CelestialBodyOrbit] = {
         MERCURY,
         PerihelionDistances.MERCURY,
         AphelionDistances.MERCURY,
-        OrbitalPeriods.MERCURY,
-    ),
+    ), 
     VENUS: CelestialBodyOrbit(
         VENUS,
         VENUS,
         PerihelionDistances.VENUS,
         AphelionDistances.VENUS,
-        OrbitalPeriods.VENUS,
-    ),
+    ), 
     EARTH: CelestialBodyOrbit(
         EARTH,
         EARTH,
         PerihelionDistances.EARTH,
         AphelionDistances.EARTH,
-        OrbitalPeriods.EARTH,
-    ),
+    ), 
     MARS: CelestialBodyOrbit(
         MARS,
         MARS,
         PerihelionDistances.MARS,
         AphelionDistances.MARS,
-        OrbitalPeriods.MARS,
-    ),
+    ), 
     JUPITER: CelestialBodyOrbit(
         JUPITER,
         JUPITER,
         PerihelionDistances.JUPITER,
         AphelionDistances.JUPITER,
-        OrbitalPeriods.JUPITER,
-    ),
+    ), 
     SATURN: CelestialBodyOrbit(
         SATURN,
         SATURN,
         PerihelionDistances.SATURN,
         AphelionDistances.SATURN,
-        OrbitalPeriods.SATURN,
-    ),
+    ), 
     URANUS: CelestialBodyOrbit(
         URANUS,
         URANUS,
         PerihelionDistances.URANUS,
         AphelionDistances.URANUS,
-        OrbitalPeriods.URANUS,
-    ),
+    ), 
     NEPTUNE: CelestialBodyOrbit(
         NEPTUNE,
         NEPTUNE,
         PerihelionDistances.NEPTUNE,
         AphelionDistances.NEPTUNE,
-        OrbitalPeriods.NEPTUNE,
-    ),
+    ), 
 }
 
 def get_celestial_body(name: str) -> CelestialBodyOrbit:

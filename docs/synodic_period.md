@@ -10,5 +10,22 @@
     - $a$: Orbits semi-major axis 
     - $G$: Gravitational constant 
         - **What is the gravitation constant?**
-            - Empirical physical constant giving the strenght of the gravitational field induced by mass 
+            - Empirical physical constant giving the strength of the gravitational field induced by mass
+            - Newton and Einstein used the constant in their universal gravitation laws and theory of general relativity respectively
+            - $$ G = 6.6743 * 10^{-11} $$
     - $M$: Mass of the more massive body 
+    - $T$: Orbital period of two point masses orbiting each other 
+- Calculating distance where a body has to orbit in order to have orbital period $T$ 
+    - $$ a = \sqrt[3]{\frac{GMT^2}{4 * \pi^2}} $$
+- Previous equation can be rewritten to factor out mass and instead use density when the the body is a perfect sphere of uniform density 
+    - $$ T = \sqrt{\frac{a^3}{r^3} \frac{3\pi}{G\rho}} $$
+    - $r$ is the spheres radius 
+    - $a$ is orbits semi-major axis 
+    - $G$ is the gravitational constant
+    - $\rho$ is density of the sphere 
+- If a small body is in a circular orbit barely above the surface of a sphere of any radius and mean density (in $kg/m^3$)
+    - $T = \sqrt{\frac{3\pi}{Gp}}$
+    - $r=a$ 
+- If the orbital periods of two bodies around a third are called $T_1$ and $T_2$ so that $T_1 < T_2$ the synodic period would be 
+    - $\frac{1}{T_{syn}} = \frac{1}{T_1} - \frac{1}{T_2}$
+    - sd
