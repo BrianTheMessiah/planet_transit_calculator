@@ -9,6 +9,7 @@ from astropy.time import Time
 
 from .bodies import CELESTIAL_BODIES, get_celestial_body
 from .search import find_transfer_options
+from .transfer import SECONDS_PER_DAY
 
 
 def build_parser() -> argparse.ArgumentParser:
@@ -55,13 +56,23 @@ def main(argv: Sequence[str] | None = None) -> int:
 
     depart_after = Time(args.depart_after) if args.depart_after else Time.now()
 
+    window_seconds = (
+        args.window_days * SECONDS_PER_DAY if args.window_days is not None else None
+    )
+    min_tof_seconds = (
+        args.min_tof * SECONDS_PER_DAY if args.min_tof is not None else None
+    )
+    max_tof_seconds = (
+        args.max_tof * SECONDS_PER_DAY if args.max_tof is not None else None
+    )
+
     result = find_transfer_options(
         origin=origin,
         destination=destination,
         depart_after=depart_after,
-        window_seconds=args.window_days,
-        min_time_of_flight_seconds=args.min_tof,
-        max_time_of_flight_seconds=args.max_tof,
+        window_seconds=window_seconds,
+        min_time_of_flight_seconds=min_tof_seconds,
+        max_time_of_flight_seconds=max_tof_seconds,
         top_n=args.top,
     )
 

@@ -1,0 +1,13 @@
+# Barycenter (Astronomy)
+- Barycenter: Center of mass around which two or more bodies orbit 
+    - Not a physical point, instead a dynamical point 
+    - **What does dynamical mean?**
+        - Description of how a system evolves over time 
+- Distance from a body's center of mass to the barycenter can be calculated as a two-body problem
+- If one of the two orbiting bodies is much more massive than the other, the barycenter will lie within the larger body 
+- Barycenter is one of the foci of the elliptical orbit of each body 
+- In a simple two body case, the distance from the cneter of the primary to the barycenter $r_1$ is given by 
+    - $r_1 = a * \frac{m_2}{m_1+m_2} = \frac{a}{1+\frac{m_1}{m_2}}$
+    - $r_1$ is the distance from body 1's center to the barycenter
+    - $a$ is the distance between the centers of the two bodies 
+    - $m_1$ and $m_2$ are the masses of the two bodies 

@@ -81,7 +81,7 @@ class CalcluateSearchWindows:
         self,
     ) -> float:
         """
-        One-way transfer time (days) of an idealized Hohmann transfer ellipse.
+        One-way transfer time (seconds) of an idealized Hohmann transfer ellipse.
 
         ### Returns
         - time_of_flight_seconds (float): Time of flight in seconds.
