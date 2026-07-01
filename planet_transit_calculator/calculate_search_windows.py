@@ -60,24 +60,21 @@ class CalcluateSearchWindows:
         - ValueError: If the planets have identical orbital periods, resulting in an infinite synodic period.
 
         ### Notes
-        The synodic period is calculated using the mean motions of the two planets.
-        It represents the time it takes for the planets to realign in their orbits,
-        which is crucial for planning interplanetary transfers. If the planets have identical orbital periods,
-        the synodic period is infinite and a ValueError is raised.
+        The synodic period is calculated using the period fraction relation:
+        1/T_syn = 1/T1 - 1/T2. It represents the time it takes for the planets
+        to realign in their orbits, which is crucial for planning interplanetary
+        transfers. If the planets have identical orbital periods, the synodic
+        period is infinite and a ValueError is raised.
         """
-        origin_mean_motion = (
-            2 * np.pi / self.origin_celestial_body.orbital_period_seconds
-        )
-        destination_mean_motion = (
-            2 * np.pi / self.destination_celestial_body.orbital_period_seconds
-        )
+        origin_period = self.origin_celestial_body.orbital_period_seconds
+        destination_period = self.destination_celestial_body.orbital_period_seconds
 
-        mean_motion_difference = abs(origin_mean_motion - destination_mean_motion)
+        inverse_period_difference = abs(1 / origin_period - 1 / destination_period)
 
-        if mean_motion_difference == 0:
+        if inverse_period_difference == 0:
             raise ValueError("Identical orbital periods, synodic period is infinite")
 
-        synodic_period_seconds = 2 * np.pi / mean_motion_difference
+        synodic_period_seconds = 1 / inverse_period_difference
         return synodic_period_seconds
 
     def _compute_hohmann_time_of_flight(
